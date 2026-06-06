@@ -1,0 +1,91 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.slot {
+  background: var(--bg-elev);
+  border: 1px dashed var(--violet-border);
+  border-radius: var(--radius);
+  padding: 32px 20px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all var(--transition);
+}
+.slot:hover {
+  border-color: var(--orange);
+  background: var(--bg-elev-2);
+}
+
+.slotIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--violet-soft);
+  border: 1px solid var(--violet-border);
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+  color: var(--orange);
+  font-size: 22px;
+  font-weight: 300;
+}
+
+.slotLabel {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 500;
+}
+
+.slotNumber {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.populated {
+  background: var(--bg-elev);
+  border: 1px solid var(--violet-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  min-height: 180px;
+}
+
+.popTitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.popType {
+  display: inline-block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--orange);
+  background: var(--orange-soft);
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .grid { grid-template-columns: 1fr; }
+}
