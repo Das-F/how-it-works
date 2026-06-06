@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { usePostIt, useUpdatePostIt } from "@/hooks/use-post-it";
-import styles from "./PostIt.module.css";
+import styles from "./PostItWidget.module.css";
 
 interface Props {
   isAdmin: boolean;
