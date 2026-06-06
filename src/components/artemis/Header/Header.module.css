@@ -2,13 +2,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 32px;
+  padding: 20px clamp(16px, 3vw, 40px);
   border-bottom: 1px solid var(--violet-border);
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
   z-index: 10;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .brand {
