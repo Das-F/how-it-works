@@ -1,0 +1,106 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--violet-border);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--violet), var(--orange));
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: white;
+}
+
+.brandName {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 16px;
+}
+
+.brandSub {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.greeting {
+  text-align: center;
+  flex: 1;
+}
+
+.greetingMain {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.qualif {
+  color: var(--orange);
+  font-weight: 600;
+}
+
+.nom {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.adminBadge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--violet-soft);
+  border: 1px solid var(--violet-border);
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.logout {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--violet-border);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--transition);
+}
+.logout:hover {
+  color: var(--orange);
+  border-color: var(--orange);
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 14px 18px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .greeting { order: 3; flex-basis: 100%; text-align: left; }
+  .brandSub { display: none; }
+}

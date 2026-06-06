@@ -1,0 +1,34 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse at top left, rgba(94, 44, 167, 0.18), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(255, 138, 0, 0.08), transparent 50%),
+    var(--bg);
+}
+
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 25% 50% 25%;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .main {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+}
