@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useDeleteGallery, useGallery, useUploadGallery } from "@/hooks/use-gallery";
 import styles from "./Gallery.module.css";
 
@@ -11,6 +11,7 @@ export function GalleryColumn({ userId }: Props) {
   const uploadMut = useUploadGallery();
   const deleteMut = useDeleteGallery();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [landscapeIds, setLandscapeIds] = useState<Record<string, boolean>>({});
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -29,6 +30,14 @@ export function GalleryColumn({ userId }: Props) {
     if (!userId) return;
     if (!confirm("Supprimer cette photo ?")) return;
     await deleteMut.mutateAsync({ id, storage_path, userId });
+  };
+
+  const handleImgLoad = (id: string) => (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    const isLandscape = img.naturalWidth > img.naturalHeight * 1.05;
+    setLandscapeIds((prev) =>
+      prev[id] === isLandscape ? prev : { ...prev, [id]: isLandscape }
+    );
   };
 
   return (
@@ -59,25 +68,32 @@ export function GalleryColumn({ userId }: Props) {
         </div>
       ) : (
         <div className={styles.grid}>
-          {items.map((it) => (
-            <div key={it.id} className={styles.item}>
-              {it.signedUrl && (
-                <img
-                  className={styles.img}
-                  src={it.signedUrl}
-                  alt={it.caption ?? "Photo"}
-                  loading="lazy"
-                />
-              )}
-              <button
-                className={styles.deleteBtn}
-                onClick={() => handleDelete(it.id, it.storage_path)}
-                aria-label="Supprimer"
+          {items.map((it) => {
+            const isLandscape = landscapeIds[it.id];
+            return (
+              <div
+                key={it.id}
+                className={`${styles.item} ${isLandscape ? styles.itemLandscape : ""}`}
               >
-                ×
-              </button>
-            </div>
-          ))}
+                {it.signedUrl && (
+                  <img
+                    className={`${styles.img} ${isLandscape ? styles.imgContain : ""}`}
+                    src={it.signedUrl}
+                    alt={it.caption ?? "Photo"}
+                    loading="lazy"
+                    onLoad={handleImgLoad(it.id)}
+                  />
+                )}
+                <button
+                  className={styles.deleteBtn}
+                  onClick={() => handleDelete(it.id, it.storage_path)}
+                  aria-label="Supprimer"
+                >
+                  ×
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
