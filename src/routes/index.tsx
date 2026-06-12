@@ -8,6 +8,7 @@ import { Header } from "@/components/artemis/Header/Header";
 import { PostItWidget } from "@/components/artemis/PostIt/PostItWidget";
 import { WidgetGrid } from "@/components/artemis/WidgetGrid/WidgetGrid";
 import { GalleryColumn } from "@/components/artemis/Gallery/GalleryColumn";
+import { MessagesPanel } from "@/components/artemis/Messages/MessagesPanel";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -53,7 +54,12 @@ function Dashboard() {
         />
       }
       left={<PostItWidget isAdmin={!!isAdmin} userId={user.id} />}
-      center={<WidgetGrid />}
+      center={
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px", minWidth: 0 }}>
+          <WidgetGrid />
+          <MessagesPanel userId={user.id} />
+        </div>
+      }
       right={<GalleryColumn userId={user.id} />}
     />
   );
