@@ -17,7 +17,13 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+}
+
+.switcherSlot {
+  margin-left: 8px;
+  padding-left: 16px;
+  border-left: 1px solid var(--violet-border);
 }
 
 .logo {

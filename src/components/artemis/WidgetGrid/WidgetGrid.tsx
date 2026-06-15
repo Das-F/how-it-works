@@ -3,8 +3,12 @@ import styles from "./WidgetGrid.module.css";
 
 const SLOT_COUNT = 4;
 
-export function WidgetGrid() {
-  const { data: widgets = [] } = useWidgets();
+interface Props {
+  dashboardId: string | undefined;
+}
+
+export function WidgetGrid({ dashboardId }: Props) {
+  const { data: widgets = [] } = useWidgets(dashboardId);
 
   return (
     <div>

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import styles from "./Header.module.css";
@@ -6,9 +7,10 @@ interface Props {
   qualificatif?: string | null;
   nom?: string | null;
   isAdmin?: boolean;
+  switcher?: ReactNode;
 }
 
-export function Header({ qualificatif, nom, isAdmin }: Props) {
+export function Header({ qualificatif, nom, isAdmin, switcher }: Props) {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -27,6 +29,7 @@ export function Header({ qualificatif, nom, isAdmin }: Props) {
           <div className={styles.brandName}>Artemis Community</div>
           <div className={styles.brandSub}>Dashboard</div>
         </div>
+        {switcher && <div className={styles.switcherSlot}>{switcher}</div>}
       </div>
 
       <div className={styles.greeting}>

@@ -4,10 +4,11 @@ import styles from "./Gallery.module.css";
 
 interface Props {
   userId: string | undefined;
+  dashboardId: string | undefined;
 }
 
-export function GalleryColumn({ userId }: Props) {
-  const { data: items = [], isLoading } = useGallery(userId);
+export function GalleryColumn({ userId, dashboardId }: Props) {
+  const { data: items = [], isLoading } = useGallery(userId, dashboardId);
   const uploadMut = useUploadGallery();
   const deleteMut = useDeleteGallery();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -15,9 +16,9 @@ export function GalleryColumn({ userId }: Props) {
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !userId) return;
+    if (!file || !userId || !dashboardId) return;
     try {
-      await uploadMut.mutateAsync({ userId, file });
+      await uploadMut.mutateAsync({ userId, dashboardId, file });
     } catch (err) {
       console.error(err);
       alert("Erreur lors de l'upload");
@@ -27,9 +28,9 @@ export function GalleryColumn({ userId }: Props) {
   };
 
   const handleDelete = async (id: string, storage_path: string) => {
-    if (!userId) return;
+    if (!userId || !dashboardId) return;
     if (!confirm("Supprimer cette photo ?")) return;
-    await deleteMut.mutateAsync({ id, storage_path, userId });
+    await deleteMut.mutateAsync({ id, storage_path, userId, dashboardId });
   };
 
   const handleImgLoad = (id: string) => (e: React.SyntheticEvent<HTMLImageElement>) => {
@@ -47,7 +48,7 @@ export function GalleryColumn({ userId }: Props) {
         <button
           className={styles.uploadBtn}
           onClick={() => inputRef.current?.click()}
-          disabled={uploadMut.isPending}
+          disabled={uploadMut.isPending || !dashboardId}
         >
           {uploadMut.isPending ? "..." : "+ Ajouter"}
         </button>

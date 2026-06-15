@@ -1,0 +1,96 @@
+.panel {
+  background: var(--bg-elev);
+  border: 1px solid var(--violet-border);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.subtitle {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  border: 1px solid var(--violet-border);
+  font-size: 13px;
+}
+.rowName { color: var(--text); font-weight: 500; }
+.rowEmail { color: var(--text-muted); font-size: 12px; }
+.removeBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 16px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition);
+}
+.removeBtn:hover { color: var(--danger); }
+
+.pendingBadge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--orange-soft);
+  color: var(--orange);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.form {
+  display: flex;
+  gap: 8px;
+}
+.input {
+  flex: 1;
+  padding: 9px 12px;
+  background: var(--bg);
+  border: 1px solid var(--violet-border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+.input:focus { border-color: var(--orange); }
+.send {
+  padding: 9px 16px;
+  background: linear-gradient(135deg, var(--violet), var(--orange));
+  border: none;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity var(--transition);
+}
+.send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.error { color: var(--danger); font-size: 12px; }
+.empty { color: var(--text-muted); font-size: 12px; font-style: italic; }

@@ -4,21 +4,23 @@ import { supabase } from "@/integrations/supabase/client";
 export type GalleryItem = {
   id: string;
   user_id: string;
+  dashboard_id: string;
   storage_path: string;
   caption: string | null;
   created_at: string;
   signedUrl?: string;
 };
 
-export function useGallery(userId: string | undefined) {
+export function useGallery(userId: string | undefined, dashboardId: string | undefined) {
   return useQuery({
-    queryKey: ["gallery", userId],
-    enabled: !!userId,
+    queryKey: ["gallery", userId, dashboardId],
+    enabled: !!userId && !!dashboardId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("gallery_items")
         .select("*")
         .eq("user_id", userId!)
+        .eq("dashboard_id", dashboardId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
 
@@ -41,7 +43,12 @@ export function useGallery(userId: string | undefined) {
 export function useUploadGallery() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (args: { userId: string; file: File; caption?: string }) => {
+    mutationFn: async (args: {
+      userId: string;
+      dashboardId: string;
+      file: File;
+      caption?: string;
+    }) => {
       const ext = args.file.name.split(".").pop() || "jpg";
       const path = `${args.userId}/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage
@@ -51,25 +58,31 @@ export function useUploadGallery() {
 
       const { error } = await supabase.from("gallery_items").insert({
         user_id: args.userId,
+        dashboard_id: args.dashboardId,
         storage_path: path,
         caption: args.caption ?? null,
       });
       if (error) throw error;
     },
     onSuccess: (_d, vars) =>
-      qc.invalidateQueries({ queryKey: ["gallery", vars.userId] }),
+      qc.invalidateQueries({ queryKey: ["gallery", vars.userId, vars.dashboardId] }),
   });
 }
 
 export function useDeleteGallery() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (args: { id: string; storage_path: string; userId: string }) => {
+    mutationFn: async (args: {
+      id: string;
+      storage_path: string;
+      userId: string;
+      dashboardId: string;
+    }) => {
       await supabase.storage.from("gallery").remove([args.storage_path]);
       const { error } = await supabase.from("gallery_items").delete().eq("id", args.id);
       if (error) throw error;
     },
     onSuccess: (_d, vars) =>
-      qc.invalidateQueries({ queryKey: ["gallery", vars.userId] }),
+      qc.invalidateQueries({ queryKey: ["gallery", vars.userId, vars.dashboardId] }),
   });
 }
