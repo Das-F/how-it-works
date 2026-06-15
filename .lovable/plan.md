@@ -1,84 +1,91 @@
-# Plan — Artemis Community
 
-## 1. Backend (Lovable Cloud / Supabase)
+# Plan — Dashboards multiples partagés
 
-J'active Lovable Cloud, puis je crée les tables suivantes avec RLS strict.
+## Concept
 
-### Tables
-- **`profiles`** — `id (uuid, FK auth.users)`, `nom (text)`, `qualificatif (text)`, `avatar_url (text?)`, `created_at`. Trigger auto-create au signup (nom/qualificatif vides par défaut, l'admin remplit ensuite).
-- **`user_roles`** — `id`, `user_id`, `role (enum: admin | user)`. Fonction `has_role(uuid, app_role)` SECURITY DEFINER (anti-recursion RLS).
-- **`post_its`** — `id`, `content (text)`, `updated_at`, `updated_by`. Lecture pour tous les authentifiés, écriture admin seulement.
-- **`widgets`** — `id`, `slot (int)`, `type (text)`, `config (jsonb)`, `is_active (bool)`. Lecture authentifiés, écriture admin.
-- **`gallery_items`** — `id`, `user_id`, `storage_path`, `caption`, `created_at`. RLS : chacun voit/édite uniquement ses propres items.
+Aujourd'hui : **un seul dashboard global** partagé par tous. Demain : **plusieurs dashboards isolés**. Tu (admin) possèdes :
+- Ton dashboard perso (bac à sable pour tester)
+- Autant de dashboards partagés que tu veux, chacun avec ses propres post-its, widgets, galerie et messagerie
+- Chaque dashboard peut contenir plusieurs invités
 
-### Storage
-- Bucket **`gallery`** privé. Policies : un user peut lire/upload/delete uniquement dans son dossier `{user_id}/...`.
+Un sélecteur en haut du dashboard permet de basculer entre tous tes dashboards.
 
-### Sécurité RLS (toutes les tables)
-- **`profiles`** : SELECT pour authentifiés (chacun voit les profils des autres pour affichage), **INSERT/UPDATE/DELETE réservés à l'admin uniquement** (`has_role(auth.uid(), 'admin')`). Les amis ne peuvent pas modifier leur propre profil — c'est toi qui définis qualificatif + nom.
-- **`user_roles`** : SELECT soi-même, modif admin uniquement.
-- **`post_its`** / **`widgets`** : SELECT authentifiés, ALL si admin.
-- **`gallery_items`** : ALL où `user_id = auth.uid()`.
-- Trigger : auto-création du profil vide + rôle 'user' au signup.
+## Backend (migration)
 
-### Toi (Artemis)
-- Après ton 1er login Magic Link, je te fournis 2 requêtes SQL : une pour te promouvoir `admin`, une pour remplir ton profil avec `qualificatif='Chasseresse'`, `nom='Artemis'`.
+### Nouvelles tables
 
-## 2. Frontend — Architecture
+- **`dashboards`** — `id`, `name` (ex: "Famille", "Amis Lyon"), `owner_id`, `is_personal` (bool), `created_at`. L'owner est admin du dashboard.
+- **`dashboard_members`** — `dashboard_id`, `user_id`, `joined_at`. Lien N-N entre users et dashboards.
+- **`dashboard_invitations`** — `id`, `dashboard_id`, `email`, `token` (uuid), `invited_by`, `created_at`, `accepted_at`. Permet de pré-créer l'accès avant que la personne ne se connecte.
 
-### Stylage : CSS Modules purs
-- Variables CSS globales dans `src/styles/theme.css` :
-  ```
-  --bg: #0f172a; --violet: #5e2ca7; --orange: #ff8a00;
-  --text: #f1f5f9; --muted: #94a3b8;
-  --font: 'Inter', sans-serif;
-  ```
-- Chaque composant a son `Component.module.css`. Pas de Tailwind dans les composants Artemis.
+### Modifications de tables existantes
 
-### Routes (TanStack Start)
-- `/auth` — page Magic Link (public)
-- `/_authenticated/index` — dashboard 3 colonnes (layout protégé géré par l'intégration)
+Ajout d'une colonne `dashboard_id` (FK vers `dashboards`, NOT NULL) sur :
+- `post_its`
+- `widgets`
+- `gallery_items`
+- `messages`
 
-### Composants modulaires
-```
-src/components/artemis/
-  Layout/DashboardLayout.tsx        — grid 3 colonnes responsive
-  Header/Header.tsx                  — "Bonjour, [qualificatif] [nom]" + logout
-  PostIt/PostItWidget.tsx            — colonne gauche, fetch read-only (edit si admin)
-  WidgetGrid/WidgetGrid.tsx          — colonne centre, slots modulaires
-  WidgetGrid/EmptySlot.tsx           — placeholder pour widgets futurs
-  Gallery/GalleryColumn.tsx          — colonne droite (privée par user)
-  Gallery/GalleryUpload.tsx          — input upload
-  Gallery/GalleryItem.tsx            — vignette + delete
-  Admin/AdminProfileEditor.tsx       — éditeur de profils visible uniquement pour toi
-```
+Migration des données existantes : création d'un dashboard "Principal" pour toi, rattachement de toutes les lignes existantes à ce dashboard.
 
-### Layout responsive
-- Desktop : grid 25% / 50% / 25%.
-- Mobile : stack vertical (post-it → widgets → gallery).
-- Esthétique : fond sombre, bordures violettes subtiles, accents orange sur boutons/liens, espacement aéré.
+### RLS rewrites
 
-## 3. Auth — Magic Links
-- Page `/auth` minimaliste : input email → `supabase.auth.signInWithOtp({ email, emailRedirectTo: window.location.origin })`.
-- Logout dans le header.
+Une fonction SECURITY DEFINER `is_dashboard_member(dashboard_id, user_id)` qui regarde `dashboard_members`. Toutes les policies de `post_its`/`widgets`/`gallery_items`/`messages` deviennent : « accessible si membre du dashboard ». Écriture restreinte à l'owner pour post-its/widgets (comme avant). Pour `gallery_items` : chacun voit/édite ses propres items dans les dashboards dont il est membre.
 
-## 4. Données
-- TanStack Query pour tous les fetchs (profil, post-it, widgets, gallery).
-- Hooks : `useProfile()`, `usePostIt()`, `useWidgets()`, `useGallery()`, `useIsAdmin()`.
-- Mutations admin (post-it, widgets, profils des amis) visibles uniquement si admin.
+### Acceptation d'invitation
 
-## 5. Ordre d'exécution
-1. Activer Lovable Cloud.
-2. Migration SQL : tables + RLS + trigger + bucket storage.
-3. Page `/auth` Magic Link.
-4. Theme CSS global + DashboardLayout.
-5. Header + PostIt + WidgetGrid + Gallery (en parallèle).
-6. Éditeur admin de profils.
-7. Te fournir les requêtes SQL pour te promouvoir admin + remplir ton profil Artemis / Chasseresse.
+Trigger sur `handle_new_user` étendu : à la création d'un compte, on consomme toutes les invitations en attente pour son email → on l'ajoute à `dashboard_members` automatiquement.
 
-## Notes
-- Pas de Tailwind dans les composants Artemis — uniquement CSS Modules.
-- Les amis n'éditent jamais leur profil : seule toi (admin) le fais.
-- Widgets centraux : slots vides stylés pour l'instant, extensibles plus tard.
+## Email d'invitation
 
-Confirme et je lance la construction.
+J'utilise **Lovable Emails** (infrastructure intégrée) :
+1. Un domaine email doit être configuré → je te proposerai le dialogue de setup si ce n'est pas déjà fait.
+2. Une server function admin `inviteToDashboard({ email, dashboard_id })` qui :
+   - crée la ligne dans `dashboard_invitations`
+   - envoie un magic link Supabase à l'email avec redirection vers l'app
+   - à la première connexion, le user est ajouté au dashboard
+
+## Frontend
+
+### Sélecteur de dashboard (header)
+
+Composant `DashboardSwitcher` dans le header : dropdown listant tous les dashboards de l'utilisateur courant, badge "Perso" pour le dashboard personnel, badge "owner" sur les tiens. Le dashboard actif est stocké en URL (`/?dashboard=<id>`) pour être bookmarkable et survivre au refresh.
+
+### Hook `useActiveDashboard()`
+
+Retourne le dashboard actif (depuis l'URL), avec fallback sur le dashboard perso. Tous les hooks existants (`usePostIt`, `useWidgets`, `useGallery`, `useMessages`) reçoivent ce `dashboard_id` et filtrent leurs queries dessus.
+
+### Bouton admin "Créer un dashboard"
+
+Visible uniquement si admin. Ouvre une modale :
+1. **Étape 1** : nom du dashboard (ex: "Famille") → bouton "Créer"
+2. Le dashboard est créé immédiatement et tu y es basculé pour le personnaliser (poser un post-it, configurer des widgets, etc.) avant d'inviter qui que ce soit.
+3. **Étape 2** : un panneau "Membres" dans le dashboard te permet d'ajouter des emails à inviter (envoi du magic link à ce moment-là, pas avant).
+
+### Panneau "Membres du dashboard"
+
+Visible uniquement à l'owner. Liste les membres actuels, les invitations en attente, et un formulaire d'ajout d'email avec bouton "Envoyer l'invitation".
+
+## Migration en deux phases
+
+Pour ne rien casser :
+1. **Phase 1 (cette session)** : migration BDD + RLS + sélecteur fonctionnel + création de dashboards. Tes données actuelles deviennent ton dashboard "Principal".
+2. **Phase 2 (même session)** : modale de création, panneau membres, envoi des invitations email (nécessite que tu confirmes la config du domaine email).
+
+## Détails techniques
+
+- `dashboard_id` côté client : driven par search param TanStack Router validé avec Zod.
+- Toutes les server functions privilégiées (création de dashboard, invitation) passent par `requireSupabaseAuth` + check `has_role('admin')`.
+- Le SMS n'est pas inclus (nécessiterait Twilio + numéro vérifié → coût et délai). Email seulement, comme convenu.
+- Le dashboard perso (`is_personal=true`) est créé automatiquement au signup pour toi, et est non-supprimable.
+
+## Ordre d'exécution
+
+1. Migration SQL (tables, FK, RLS, fonctions, backfill du dashboard "Principal").
+2. Hook `useActiveDashboard` + adaptation des hooks existants.
+3. `DashboardSwitcher` dans le header.
+4. Modale admin "Créer un dashboard".
+5. Setup email domain (si pas déjà fait).
+6. Server function `inviteToDashboard` + panneau membres + emails.
+
+Confirme et je lance.
