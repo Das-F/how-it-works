@@ -14,10 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
+      dashboard_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          dashboard_id: string
+          email: string
+          id: string
+          invited_by: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          dashboard_id: string
+          email: string
+          id?: string
+          invited_by?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          dashboard_id?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_invitations_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dashboard_members: {
+        Row: {
+          dashboard_id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          dashboard_id: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          dashboard_id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_members_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dashboards: {
+        Row: {
+          created_at: string
+          id: string
+          is_personal: boolean
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_personal?: boolean
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_personal?: boolean
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       gallery_items: {
         Row: {
           caption: string | null
           created_at: string
+          dashboard_id: string
           id: string
           storage_path: string
           user_id: string
@@ -25,6 +114,7 @@ export type Database = {
         Insert: {
           caption?: string | null
           created_at?: string
+          dashboard_id: string
           id?: string
           storage_path: string
           user_id: string
@@ -32,37 +122,58 @@ export type Database = {
         Update: {
           caption?: string | null
           created_at?: string
+          dashboard_id?: string
           id?: string
           storage_path?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gallery_items_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
           content: string
           created_at: string
+          dashboard_id: string
           id: string
           sender_id: string
         }
         Insert: {
           content: string
           created_at?: string
+          dashboard_id: string
           id?: string
           sender_id: string
         }
         Update: {
           content?: string
           created_at?: string
+          dashboard_id?: string
           id?: string
           sender_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       post_its: {
         Row: {
           content: string
           created_at: string
+          dashboard_id: string
           id: string
           updated_at: string
           updated_by: string | null
@@ -70,6 +181,7 @@ export type Database = {
         Insert: {
           content?: string
           created_at?: string
+          dashboard_id: string
           id?: string
           updated_at?: string
           updated_by?: string | null
@@ -77,11 +189,20 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          dashboard_id?: string
           id?: string
           updated_at?: string
           updated_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "post_its_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -135,6 +256,7 @@ export type Database = {
         Row: {
           config: Json
           created_at: string
+          dashboard_id: string
           id: string
           is_active: boolean
           slot: number
@@ -145,6 +267,7 @@ export type Database = {
         Insert: {
           config?: Json
           created_at?: string
+          dashboard_id: string
           id?: string
           is_active?: boolean
           slot: number
@@ -155,6 +278,7 @@ export type Database = {
         Update: {
           config?: Json
           created_at?: string
+          dashboard_id?: string
           id?: string
           is_active?: boolean
           slot?: number
@@ -162,7 +286,15 @@ export type Database = {
           type?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "widgets_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "dashboards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -174,6 +306,14 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_dashboard_member: {
+        Args: { _dashboard_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_dashboard_owner: {
+        Args: { _dashboard_id: string; _user_id: string }
         Returns: boolean
       }
     }
