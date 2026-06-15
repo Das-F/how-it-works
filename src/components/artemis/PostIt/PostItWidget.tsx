@@ -1,32 +1,33 @@
 import { useEffect, useState } from "react";
-import { usePostIt, useUpdatePostIt } from "@/hooks/use-post-it";
+import { usePostIt, useUpsertPostIt } from "@/hooks/use-post-it";
 import styles from "./PostItWidget.module.css";
 
 interface Props {
-  isAdmin: boolean;
+  isOwner: boolean;
   userId: string | undefined;
+  dashboardId: string | undefined;
 }
 
-export function PostItWidget({ isAdmin, userId }: Props) {
-  const { data: postIt, isLoading } = usePostIt();
-  const updateMut = useUpdatePostIt();
+export function PostItWidget({ isOwner, userId, dashboardId }: Props) {
+  const { data: postIt, isLoading } = usePostIt(dashboardId);
+  const upsertMut = useUpsertPostIt(dashboardId);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
 
   useEffect(() => {
-    if (postIt) setDraft(postIt.content);
+    setDraft(postIt?.content ?? "");
   }, [postIt]);
 
   const save = async () => {
-    if (!postIt || !userId) return;
-    await updateMut.mutateAsync({ id: postIt.id, content: draft, userId });
+    if (!userId) return;
+    await upsertMut.mutateAsync({ id: postIt?.id, content: draft, userId });
     setEditing(false);
   };
 
   return (
     <div className={styles.card}>
       <div className={styles.pin} />
-      <div className={styles.label}>Rappel Admin</div>
+      <div className={styles.label}>Rappel</div>
 
       {editing ? (
         <div className={styles.editor}>
@@ -34,6 +35,7 @@ export function PostItWidget({ isAdmin, userId }: Props) {
             className={styles.textarea}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
+            autoFocus
           />
           <div className={styles.actions}>
             <button
@@ -45,9 +47,9 @@ export function PostItWidget({ isAdmin, userId }: Props) {
             <button
               className={`${styles.btn} ${styles.btnPrimary}`}
               onClick={save}
-              disabled={updateMut.isPending}
+              disabled={upsertMut.isPending}
             >
-              {updateMut.isPending ? "..." : "Enregistrer"}
+              {upsertMut.isPending ? "..." : "Enregistrer"}
             </button>
           </div>
         </div>
@@ -60,9 +62,9 @@ export function PostItWidget({ isAdmin, userId }: Props) {
                 ? postIt.content
                 : <span className={styles.empty}>Aucun rappel pour l'instant.</span>}
           </div>
-          {isAdmin && postIt && (
+          {isOwner && (
             <button className={styles.editToggle} onClick={() => setEditing(true)}>
-              Modifier
+              {postIt ? "Modifier" : "+ Ajouter un rappel"}
             </button>
           )}
         </>

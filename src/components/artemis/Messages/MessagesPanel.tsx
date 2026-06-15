@@ -5,6 +5,7 @@ import styles from "./MessagesPanel.module.css";
 
 interface Props {
   userId: string;
+  dashboardId: string | undefined;
 }
 
 function formatTime(iso: string) {
@@ -22,11 +23,11 @@ function formatTime(iso: string) {
   });
 }
 
-export function MessagesPanel({ userId }: Props) {
-  const { data: messages, isLoading } = useMessages();
+export function MessagesPanel({ userId, dashboardId }: Props) {
+  const { data: messages, isLoading } = useMessages(dashboardId);
   const { data: profiles } = useAllProfiles();
-  const send = useSendMessage(userId);
-  const remove = useDeleteMessage();
+  const send = useSendMessage(userId, dashboardId);
+  const remove = useDeleteMessage(dashboardId);
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -112,12 +113,12 @@ export function MessagesPanel({ userId }: Props) {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           maxLength={1000}
-          disabled={send.isPending}
+          disabled={send.isPending || !dashboardId}
         />
         <button
           type="submit"
           className={styles.send}
-          disabled={!draft.trim() || send.isPending}
+          disabled={!draft.trim() || send.isPending || !dashboardId}
         >
           {send.isPending ? "…" : "Envoyer"}
         </button>
