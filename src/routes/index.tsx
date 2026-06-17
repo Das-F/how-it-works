@@ -105,7 +105,12 @@ function Dashboard() {
       }
       center={
         <div style={{ display: "flex", flexDirection: "column", gap: "20px", minWidth: 0 }}>
-          <WidgetGrid dashboardId={dashboardId} />
+          <WidgetGrid
+            dashboardId={dashboardId}
+            userId={user.id}
+            isOwner={isOwner}
+            isGlobalAdmin={!!isAdmin}
+          />
           <MessagesPanel userId={user.id} dashboardId={dashboardId} />
         </div>
       }
