@@ -1,91 +1,106 @@
-
-# Plan — Dashboards multiples partagés
-
 ## Concept
 
-Aujourd'hui : **un seul dashboard global** partagé par tous. Demain : **plusieurs dashboards isolés**. Tu (admin) possèdes :
-- Ton dashboard perso (bac à sable pour tester)
-- Autant de dashboards partagés que tu veux, chacun avec ses propres post-its, widgets, galerie et messagerie
-- Chaque dashboard peut contenir plusieurs invités
+Cliquer sur un slot vide ouvre une popup qui propose des widgets à ajouter. Premier widget livré : **Sessions de sport** (agenda lundi/jeudi 18h30-20h45, avec présence/absence pour chaque invité du dashboard, et périodes de pause gérées par les admins).
 
-Un sélecteur en haut du dashboard permet de basculer entre tous tes dashboards.
+## Catalogue de widgets (extensible)
 
-## Backend (migration)
+Pour l'instant, 2 types proposés dans la popup :
+- **`sport_sessions`** — agenda des sessions sport + présences (le widget principal demandé)
+- **`calendar`** — calendrier mensuel simple (placeholder pour usages futurs, juste un mois affiché, pas d'évènements)
+
+Architecture pensée pour ajouter facilement d'autres types plus tard (météo, todo, etc.).
+
+## Pop-up "Ajouter un widget"
+
+Au clic sur un slot vide → modale (Dialog shadcn) :
+- Liste des types de widgets disponibles, avec titre + courte description + icône
+- Champ "Titre personnalisé" optionnel
+- Bouton "Ajouter" → insère dans `widgets` avec `slot`, `type`, `title`, `dashboard_id`, `is_active=true`
+
+Seul l'**owner du dashboard** peut ajouter/configurer un widget (cohérent avec les RLS existantes). Pour les autres membres, clic sur slot vide = rien ne se passe (ou message "Seul l'owner peut configurer les widgets").
+
+Petit menu (⋯) sur les widgets existants pour `Supprimer` (owner uniquement).
+
+## Widget `sport_sessions`
+
+### Logique métier
+
+- Sessions générées côté client : tous les **lundis et jeudis** de l'année courante (et N+1 pour la visibilité long terme), créneau **18h30–20h45**.
+- Une session est **active** sauf si elle tombe dans une **période d'exclusion** (vacances, pauses) définie par les admins.
+- Chaque membre du dashboard peut marquer pour chaque session future : `présent`, `absent`, ou rien (= pas encore répondu).
+- Affichage : liste scrollable des prochaines sessions (limitée aux 8-10 prochaines visibles, scroll pour voir plus loin), avec pour chacune :
+  - Date + jour
+  - Boutons "Je viens" / "Absent" pour l'utilisateur courant
+  - Mini-liste des membres avec leur statut (avatar/initiale + ✓ / ✗ / —)
+
+### Rôle "sport_admin"
+
+Nouveau rôle dans l'enum `app_role` : **`sport_admin`**. 
+- Tu es automatiquement `sport_admin` (puisque admin global → on étend la fonction `has_role` ou on ajoute le rôle à la main).
+- Tu peux désigner d'autres utilisateurs `sport_admin` via un petit panneau dans le widget (visible uniquement si tu as `admin` ou `sport_admin`).
+- Seuls les `sport_admin` (et `admin`) peuvent créer/supprimer des périodes d'exclusion.
+
+### Périodes d'exclusion
+
+Panneau "Périodes sans sport" dans le widget, visible par tous mais éditable seulement par les admins sport :
+- Liste des périodes (date début → date fin, libellé optionnel ex: "Vacances été")
+- Formulaire admin : 2 datepickers + bouton "Ajouter"
+- Bouton ✕ pour supprimer (admin)
+
+## Backend
 
 ### Nouvelles tables
 
-- **`dashboards`** — `id`, `name` (ex: "Famille", "Amis Lyon"), `owner_id`, `is_personal` (bool), `created_at`. L'owner est admin du dashboard.
-- **`dashboard_members`** — `dashboard_id`, `user_id`, `joined_at`. Lien N-N entre users et dashboards.
-- **`dashboard_invitations`** — `id`, `dashboard_id`, `email`, `token` (uuid), `invited_by`, `created_at`, `accepted_at`. Permet de pré-créer l'accès avant que la personne ne se connecte.
+- **`sport_excluded_periods`** — `id`, `start_date`, `end_date`, `label`, `created_by`, `created_at`. Pas de `dashboard_id` : les périodes sont **globales** (les sessions sport concernent l'asso, pas un dashboard particulier).
+- **`sport_attendances`** — `id`, `session_date` (date), `user_id`, `status` ('present' | 'absent'), `updated_at`. Unique (`session_date`, `user_id`).
 
-### Modifications de tables existantes
+Pas de table `sport_sessions` : les sessions sont déterministes (lundi/jeudi 18h30) et calculées côté client. On stocke seulement les exceptions (périodes) et les réponses.
 
-Ajout d'une colonne `dashboard_id` (FK vers `dashboards`, NOT NULL) sur :
-- `post_its`
-- `widgets`
-- `gallery_items`
-- `messages`
+### Migration enum
 
-Migration des données existantes : création d'un dashboard "Principal" pour toi, rattachement de toutes les lignes existantes à ce dashboard.
+Ajout de `sport_admin` à `app_role`.
 
-### RLS rewrites
+### RLS
 
-Une fonction SECURITY DEFINER `is_dashboard_member(dashboard_id, user_id)` qui regarde `dashboard_members`. Toutes les policies de `post_its`/`widgets`/`gallery_items`/`messages` deviennent : « accessible si membre du dashboard ». Écriture restreinte à l'owner pour post-its/widgets (comme avant). Pour `gallery_items` : chacun voit/édite ses propres items dans les dashboards dont il est membre.
+- `sport_excluded_periods` : tous les `authenticated` lisent, écriture si `has_role(uid, 'admin')` OU `has_role(uid, 'sport_admin')`.
+- `sport_attendances` : tous les `authenticated` lisent (pour voir qui vient), écriture seulement si `user_id = auth.uid()`.
 
-### Acceptation d'invitation
+### Promotion `sport_admin`
 
-Trigger sur `handle_new_user` étendu : à la création d'un compte, on consomme toutes les invitations en attente pour son email → on l'ajoute à `dashboard_members` automatiquement.
-
-## Email d'invitation
-
-J'utilise **Lovable Emails** (infrastructure intégrée) :
-1. Un domaine email doit être configuré → je te proposerai le dialogue de setup si ce n'est pas déjà fait.
-2. Une server function admin `inviteToDashboard({ email, dashboard_id })` qui :
-   - crée la ligne dans `dashboard_invitations`
-   - envoie un magic link Supabase à l'email avec redirection vers l'app
-   - à la première connexion, le user est ajouté au dashboard
+Server function `grantSportAdmin({ user_id })` protégée par `requireSupabaseAuth` + check `has_role('admin')`. Insère dans `user_roles`. Côté UI : un petit formulaire dans le panneau admin du widget avec un select des membres du dashboard actif (ou champ email).
 
 ## Frontend
 
-### Sélecteur de dashboard (header)
+### Nouveaux fichiers
 
-Composant `DashboardSwitcher` dans le header : dropdown listant tous les dashboards de l'utilisateur courant, badge "Perso" pour le dashboard personnel, badge "owner" sur les tiens. Le dashboard actif est stocké en URL (`/?dashboard=<id>`) pour être bookmarkable et survivre au refresh.
+- `src/components/artemis/WidgetGrid/AddWidgetDialog.tsx` (+ .module.css) — la popup catalogue
+- `src/components/artemis/WidgetGrid/WidgetRenderer.tsx` — switch sur `widget.type` → composant correspondant
+- `src/components/artemis/widgets/SportSessions/SportSessionsWidget.tsx` (+ .module.css)
+- `src/components/artemis/widgets/SportSessions/ExcludedPeriodsPanel.tsx`
+- `src/components/artemis/widgets/SportSessions/SportAdminsPanel.tsx`
+- `src/components/artemis/widgets/Calendar/CalendarWidget.tsx` (placeholder simple)
+- `src/hooks/use-sport-sessions.ts` — calcule les sessions à venir en excluant les périodes
+- `src/hooks/use-sport-attendances.ts` — CRUD attendances avec realtime
+- `src/hooks/use-excluded-periods.ts` — CRUD périodes
+- `src/hooks/use-is-sport-admin.ts`
+- `src/lib/api/sport.functions.ts` — server fn `grantSportAdmin`
 
-### Hook `useActiveDashboard()`
+### Modifications
 
-Retourne le dashboard actif (depuis l'URL), avec fallback sur le dashboard perso. Tous les hooks existants (`usePostIt`, `useWidgets`, `useGallery`, `useMessages`) reçoivent ce `dashboard_id` et filtrent leurs queries dessus.
-
-### Bouton admin "Créer un dashboard"
-
-Visible uniquement si admin. Ouvre une modale :
-1. **Étape 1** : nom du dashboard (ex: "Famille") → bouton "Créer"
-2. Le dashboard est créé immédiatement et tu y es basculé pour le personnaliser (poser un post-it, configurer des widgets, etc.) avant d'inviter qui que ce soit.
-3. **Étape 2** : un panneau "Membres" dans le dashboard te permet d'ajouter des emails à inviter (envoi du magic link à ce moment-là, pas avant).
-
-### Panneau "Membres du dashboard"
-
-Visible uniquement à l'owner. Liste les membres actuels, les invitations en attente, et un formulaire d'ajout d'email avec bouton "Envoyer l'invitation".
-
-## Migration en deux phases
-
-Pour ne rien casser :
-1. **Phase 1 (cette session)** : migration BDD + RLS + sélecteur fonctionnel + création de dashboards. Tes données actuelles deviennent ton dashboard "Principal".
-2. **Phase 2 (même session)** : modale de création, panneau membres, envoi des invitations email (nécessite que tu confirmes la config du domaine email).
+- `src/components/artemis/WidgetGrid/WidgetGrid.tsx` — slot vide cliquable (owner) ouvrant `AddWidgetDialog` ; slot peuplé délègue à `WidgetRenderer`.
 
 ## Détails techniques
 
-- `dashboard_id` côté client : driven par search param TanStack Router validé avec Zod.
-- Toutes les server functions privilégiées (création de dashboard, invitation) passent par `requireSupabaseAuth` + check `has_role('admin')`.
-- Le SMS n'est pas inclus (nécessiterait Twilio + numéro vérifié → coût et délai). Email seulement, comme convenu.
-- Le dashboard perso (`is_personal=true`) est créé automatiquement au signup pour toi, et est non-supprimable.
+- Génération des sessions : fonction pure `getUpcomingSportSessions(periods, limit, fromDate)` qui itère jour par jour, garde lundis/jeudis, exclut les dates couvertes par une période.
+- Realtime activé sur `sport_attendances` pour voir en direct les réponses des autres.
+- Format date côté DB : `date` (pas timestamp) → simple comparaison string.
 
 ## Ordre d'exécution
 
-1. Migration SQL (tables, FK, RLS, fonctions, backfill du dashboard "Principal").
-2. Hook `useActiveDashboard` + adaptation des hooks existants.
-3. `DashboardSwitcher` dans le header.
-4. Modale admin "Créer un dashboard".
-5. Setup email domain (si pas déjà fait).
-6. Server function `inviteToDashboard` + panneau membres + emails.
+1. Migration SQL (enum, tables, RLS, grants).
+2. Hooks + server function.
+3. `AddWidgetDialog` + `WidgetRenderer` + branchement dans `WidgetGrid`.
+4. Composants `SportSessionsWidget` + sous-panneaux.
+5. `CalendarWidget` placeholder.
 
 Confirme et je lance.

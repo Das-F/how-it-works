@@ -1,0 +1,93 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 320px;
+  gap: 8px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.title {
+  font-weight: 600;
+  font-size: 14px;
+}
+.tabs {
+  display: flex;
+  gap: 4px;
+}
+.tab {
+  background: transparent;
+  border: 1px solid var(--violet-border);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.tabActive {
+  background: var(--orange-soft);
+  color: var(--orange);
+  border-color: var(--orange);
+}
+
+.subtitle {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  padding-right: 4px;
+}
+
+.session {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--violet-border);
+  border-radius: var(--radius-sm);
+}
+
+.sessionInfo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.sessionDate { font-size: 13px; font-weight: 500; text-transform: capitalize; }
+.sessionMeta { display: flex; gap: 10px; font-size: 11px; }
+.presentDot { color: var(--success); }
+.absentDot { color: var(--danger); }
+
+.actions { display: flex; gap: 6px; flex-shrink: 0; }
+.btn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  background: var(--bg-elev-2);
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+.btnPresent.btnActive {
+  background: var(--success);
+  color: white;
+}
+.btnAbsent.btnActive {
+  background: var(--danger);
+  color: white;
+}
+.btn:hover { color: var(--text); }

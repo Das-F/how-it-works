@@ -1,0 +1,90 @@
+.content {
+  background: var(--bg-elev) !important;
+  border: 1px solid var(--violet-border) !important;
+  color: var(--text) !important;
+  max-width: 520px;
+}
+
+.input {
+  background: var(--bg);
+  border: 1px solid var(--violet-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 13px;
+  margin-top: 4px;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--orange);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.card {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: var(--bg);
+  border: 1px solid var(--violet-border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  text-align: left;
+  color: var(--text);
+  transition: all var(--transition);
+  cursor: pointer;
+}
+.card:hover {
+  border-color: var(--orange);
+  background: var(--bg-elev-2);
+}
+.cardSelected {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+}
+
+.icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  background: var(--violet-soft);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.cardBody { flex: 1; min-width: 0; }
+.cardTitle { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.cardDesc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.cancel, .add {
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+}
+.cancel {
+  background: transparent;
+  border: 1px solid var(--violet-border);
+  color: var(--text-muted);
+}
+.add {
+  background: linear-gradient(135deg, var(--orange), var(--violet));
+  color: white;
+}
+.add:disabled { opacity: 0.5; cursor: not-allowed; }
