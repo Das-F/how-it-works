@@ -60,7 +60,7 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
       <div className={styles.list}>
         {members.map((m) => {
           const isOwner = m.user_id === ownerId;
-          const baseLabel = m.qualificatif || m.nom || "Membre";
+          const baseLabel = m.nom || m.qualificatif || "Membre";
           const label = m.alias || baseLabel;
           const isEditing = editingId === m.user_id;
           const canRename = !isOwner && userId === ownerId;

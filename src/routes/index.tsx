@@ -79,6 +79,7 @@ function Dashboard() {
     <DashboardLayout
       header={
         <Header
+          userId={user.id}
           qualificatif={profile?.qualificatif}
           nom={profile?.nom}
           isAdmin={!!isAdmin}
@@ -90,6 +91,7 @@ function Dashboard() {
             />
           }
         />
+
       }
       left={
         <>
