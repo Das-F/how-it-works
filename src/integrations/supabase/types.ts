@@ -51,16 +51,19 @@ export type Database = {
       }
       dashboard_members: {
         Row: {
+          alias: string | null
           dashboard_id: string
           joined_at: string
           user_id: string
         }
         Insert: {
+          alias?: string | null
           dashboard_id: string
           joined_at?: string
           user_id: string
         }
         Update: {
+          alias?: string | null
           dashboard_id?: string
           joined_at?: string
           user_id?: string
