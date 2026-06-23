@@ -50,9 +50,11 @@ export function WidgetGrid({ dashboardId, userId, isOwner, isGlobalAdmin }: Prop
                   type={widget.type}
                   title={widget.title}
                   userId={userId}
+                  dashboardId={dashboardId}
                   isSportAdmin={isSportAdmin}
                   isGlobalAdmin={isGlobalAdmin}
                 />
+
               </div>
             );
           }
