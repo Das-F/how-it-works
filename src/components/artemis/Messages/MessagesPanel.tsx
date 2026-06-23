@@ -40,7 +40,7 @@ export function MessagesPanel({ userId, dashboardId }: Props) {
   const nameFor = (id: string) => {
     const p = profiles?.find((x) => x.id === id);
     if (!p) return "…";
-    return p.qualificatif || p.nom || "Anonyme";
+    return p.nom || p.qualificatif || "Anonyme";
   };
 
   const handleSubmit = (e: FormEvent) => {
