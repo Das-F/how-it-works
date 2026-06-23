@@ -4,8 +4,10 @@ import {
   useDashboardMembers,
   useInviteToDashboard,
   useRemoveMember,
+  useRenameMember,
 } from "@/hooks/use-dashboards";
 import styles from "./MembersPanel.module.css";
+
 
 interface Props {
   dashboardId: string;
@@ -18,7 +20,10 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
   const { data: invitations = [] } = useDashboardInvitations(dashboardId);
   const invite = useInviteToDashboard(userId);
   const removeMember = useRemoveMember(dashboardId);
+  const renameMember = useRenameMember(dashboardId);
   const [email, setEmail] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingValue, setEditingValue] = useState("");
 
   const handleInvite = async (e: FormEvent) => {
     e.preventDefault();
@@ -28,6 +33,20 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
       setEmail("");
     } catch {
       /* error shown below */
+    }
+  };
+
+  const startEdit = (memberUserId: string, current: string) => {
+    setEditingId(memberUserId);
+    setEditingValue(current);
+  };
+
+  const submitEdit = async (memberUserId: string) => {
+    try {
+      await renameMember.mutateAsync({ userId: memberUserId, alias: editingValue });
+      setEditingId(null);
+    } catch {
+      /* noop */
     }
   };
 
@@ -41,16 +60,56 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
       <div className={styles.list}>
         {members.map((m) => {
           const isOwner = m.user_id === ownerId;
-          const label = m.qualificatif || m.nom || "Membre";
+          const baseLabel = m.qualificatif || m.nom || "Membre";
+          const label = m.alias || baseLabel;
+          const isEditing = editingId === m.user_id;
+          const canRename = !isOwner && userId === ownerId;
           return (
             <div key={m.user_id} className={styles.row}>
-              <div>
-                <div className={styles.rowName}>
-                  {label}
-                  {isOwner && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--orange)" }}>OWNER</span>}
-                </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {isEditing ? (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      submitEdit(m.user_id);
+                    }}
+                    style={{ display: "flex", gap: 6 }}
+                  >
+                    <input
+                      autoFocus
+                      className={styles.input}
+                      value={editingValue}
+                      onChange={(e) => setEditingValue(e.target.value)}
+                      placeholder={baseLabel}
+                      maxLength={60}
+                      onBlur={() => submitEdit(m.user_id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                    />
+                  </form>
+                ) : (
+                  <div className={styles.rowName}>
+                    {label}
+                    {isOwner && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--orange)" }}>OWNER</span>}
+                    {m.alias && !isOwner && (
+                      <span style={{ marginLeft: 8, fontSize: 11, color: "var(--text-muted)" }}>({baseLabel})</span>
+                    )}
+                  </div>
+                )}
               </div>
-              {!isOwner && (
+              {canRename && !isEditing && (
+                <button
+                  className={styles.removeBtn}
+                  onClick={() => startEdit(m.user_id, m.alias ?? "")}
+                  aria-label="Renommer"
+                  title="Renommer"
+                  style={{ fontSize: 13 }}
+                >
+                  ✎
+                </button>
+              )}
+              {!isOwner && !isEditing && (
                 <button
                   className={styles.removeBtn}
                   onClick={() => {
@@ -61,6 +120,7 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
                   aria-label="Retirer"
                 >
                   ×
+
                 </button>
               )}
             </div>
