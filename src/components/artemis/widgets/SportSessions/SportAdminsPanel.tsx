@@ -36,7 +36,8 @@ export function SportAdminsPanel({ userId }: { userId: string }) {
         )}
         {adminProfiles.map((p) => (
           <div key={p.id} style={row}>
-            <div style={{ fontSize: 13 }}>{p.qualificatif || p.nom || "Membre"}</div>
+            <div style={{ fontSize: 13 }}>{p.nom || p.qualificatif || "Membre"}</div>
+
             <button onClick={() => remove.mutate(p.id)} style={removeBtn}>Retirer</button>
           </div>
         ))}
@@ -47,7 +48,7 @@ export function SportAdminsPanel({ userId }: { userId: string }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {others.map((p) => (
             <div key={p.id} style={row}>
-              <div style={{ fontSize: 13 }}>{p.qualificatif || p.nom || "Membre"}</div>
+              <div style={{ fontSize: 13 }}>{p.nom || p.qualificatif || "Membre"}</div>
               <button onClick={() => add.mutate(p.id)} style={addBtn}>Promouvoir</button>
             </div>
           ))}
