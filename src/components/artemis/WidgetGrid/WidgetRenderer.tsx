@@ -5,11 +5,12 @@ interface Props {
   type: string;
   title: string | null;
   userId: string;
+  dashboardId: string | undefined;
   isSportAdmin: boolean;
   isGlobalAdmin: boolean;
 }
 
-export function WidgetRenderer({ type, title, userId, isSportAdmin, isGlobalAdmin }: Props) {
+export function WidgetRenderer({ type, title, userId, dashboardId, isSportAdmin, isGlobalAdmin }: Props) {
   switch (type) {
     case "sport_sessions":
       return (
@@ -21,7 +22,7 @@ export function WidgetRenderer({ type, title, userId, isSportAdmin, isGlobalAdmi
         />
       );
     case "calendar":
-      return <CalendarWidget title={title} />;
+      return <CalendarWidget title={title} dashboardId={dashboardId} />;
     default:
       return (
         <div>
@@ -31,3 +32,4 @@ export function WidgetRenderer({ type, title, userId, isSportAdmin, isGlobalAdmi
       );
   }
 }
+
