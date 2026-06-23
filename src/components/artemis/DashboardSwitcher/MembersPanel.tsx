@@ -4,8 +4,10 @@ import {
   useDashboardMembers,
   useInviteToDashboard,
   useRemoveMember,
+  useRenameMember,
 } from "@/hooks/use-dashboards";
 import styles from "./MembersPanel.module.css";
+
 
 interface Props {
   dashboardId: string;
