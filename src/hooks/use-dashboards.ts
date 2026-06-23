@@ -55,6 +55,7 @@ export interface DashboardMember {
   joined_at: string;
   nom: string;
   qualificatif: string;
+  alias: string | null;
 }
 
 export function useDashboardMembers(dashboardId: string | undefined) {
@@ -64,7 +65,7 @@ export function useDashboardMembers(dashboardId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("dashboard_members")
-        .select("user_id, joined_at")
+        .select("user_id, joined_at, alias")
         .eq("dashboard_id", dashboardId!);
       if (error) throw error;
       if (!data?.length) return [] as DashboardMember[];
@@ -80,6 +81,7 @@ export function useDashboardMembers(dashboardId: string | undefined) {
         return {
           user_id: m.user_id,
           joined_at: m.joined_at,
+          alias: (m as { alias: string | null }).alias ?? null,
           nom: p?.nom ?? "",
           qualificatif: p?.qualificatif ?? "",
         };
@@ -87,6 +89,26 @@ export function useDashboardMembers(dashboardId: string | undefined) {
     },
   });
 }
+
+export function useRenameMember(dashboardId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (args: { userId: string; alias: string }) => {
+      if (!dashboardId) throw new Error("Pas de dashboard");
+      const alias = args.alias.trim();
+      const { error } = await supabase
+        .from("dashboard_members")
+        .update({ alias: alias === "" ? null : alias })
+        .eq("dashboard_id", dashboardId)
+        .eq("user_id", args.userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["dashboard-members", dashboardId] });
+    },
+  });
+}
+
 
 export function useDashboardInvitations(dashboardId: string | undefined) {
   return useQuery({
