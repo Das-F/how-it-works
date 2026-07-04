@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -48,6 +48,7 @@ export interface ExcludedPeriod {
 
 export function useExcludedPeriods() {
   const qc = useQueryClient();
+  const instanceId = useId();
   const query = useQuery({
     queryKey: ["sport-periods"],
     queryFn: async () => {
@@ -62,7 +63,7 @@ export function useExcludedPeriods() {
 
   useEffect(() => {
     const ch = supabase
-      .channel("sport-periods")
+      .channel(`sport-periods-${instanceId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "sport_excluded_periods" },
@@ -72,7 +73,7 @@ export function useExcludedPeriods() {
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [qc]);
+  }, [qc, instanceId]);
 
   return query;
 }
@@ -115,6 +116,7 @@ export interface Attendance {
 
 export function useAttendances(dates: string[]) {
   const qc = useQueryClient();
+  const instanceId = useId();
   const key = dates.join(",");
   const query = useQuery({
     queryKey: ["sport-attendances", key],
@@ -131,7 +133,7 @@ export function useAttendances(dates: string[]) {
 
   useEffect(() => {
     const ch = supabase
-      .channel("sport-attendances")
+      .channel(`sport-attendances-${instanceId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "sport_attendances" },
@@ -141,7 +143,7 @@ export function useAttendances(dates: string[]) {
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [qc]);
+  }, [qc, instanceId]);
 
   return query;
 }
