@@ -116,6 +116,7 @@ export interface Attendance {
 
 export function useAttendances(dates: string[]) {
   const qc = useQueryClient();
+  const instanceId = useId();
   const key = dates.join(",");
   const query = useQuery({
     queryKey: ["sport-attendances", key],
@@ -132,7 +133,7 @@ export function useAttendances(dates: string[]) {
 
   useEffect(() => {
     const ch = supabase
-      .channel("sport-attendances")
+      .channel(`sport-attendances-${instanceId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "sport_attendances" },
@@ -142,7 +143,7 @@ export function useAttendances(dates: string[]) {
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [qc]);
+  }, [qc, instanceId]);
 
   return query;
 }
