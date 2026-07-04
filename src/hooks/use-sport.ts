@@ -48,6 +48,7 @@ export interface ExcludedPeriod {
 
 export function useExcludedPeriods() {
   const qc = useQueryClient();
+  const instanceId = useId();
   const query = useQuery({
     queryKey: ["sport-periods"],
     queryFn: async () => {
@@ -62,7 +63,7 @@ export function useExcludedPeriods() {
 
   useEffect(() => {
     const ch = supabase
-      .channel("sport-periods")
+      .channel(`sport-periods-${instanceId}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "sport_excluded_periods" },
@@ -72,7 +73,7 @@ export function useExcludedPeriods() {
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [qc]);
+  }, [qc, instanceId]);
 
   return query;
 }
