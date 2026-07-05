@@ -89,7 +89,7 @@ export function MessagesPanel({ userId, dashboardId }: Props) {
                 <span
                   className={`${styles.meta} ${mine ? styles.metaMine : styles.metaOther}`}
                 >
-                  {mine ? "Moi" : nameFor(m.sender_id)} · {formatTime(m.created_at)}
+                  {mine ? "Moi" : nameNodeFor(m.sender_id)} · {formatTime(m.created_at)}
                   {mine && (
                     <button
                       type="button"
