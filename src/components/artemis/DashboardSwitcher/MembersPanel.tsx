@@ -22,6 +22,8 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
   const removeMember = useRemoveMember(dashboardId);
   const renameMember = useRenameMember(dashboardId);
   const [email, setEmail] = useState("");
+  const [prefillNom, setPrefillNom] = useState("");
+  const [prefillQualif, setPrefillQualif] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
 
@@ -29,8 +31,15 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
     e.preventDefault();
     if (!email.trim() || invite.isPending) return;
     try {
-      await invite.mutateAsync({ dashboardId, email });
+      await invite.mutateAsync({
+        dashboardId,
+        email,
+        prefillNom: prefillNom.trim() || undefined,
+        prefillQualificatif: prefillQualif.trim() || undefined,
+      });
       setEmail("");
+      setPrefillNom("");
+      setPrefillQualif("");
     } catch {
       /* error shown below */
     }
