@@ -23,8 +23,8 @@ export function Header({ userId, qualificatif, nom, isAdmin, switcher }: Props) 
 
   const displayNom = nom?.trim() || "";
   const displayQualif = qualificatif?.trim() || "";
-  const primary = displayNom || displayQualif || "ami(e)";
-  const secondary = displayNom && displayQualif ? displayQualif : "";
+  const primary = displayQualif || displayNom || "ami(e)";
+  const secondary = displayQualif && displayNom ? displayNom : "";
 
   return (
     <header className={styles.header}>
@@ -148,11 +148,11 @@ function ProfileEditModal({
       >
         <div style={{ fontWeight: 600, color: "var(--text)" }}>Mon nom</div>
         <label style={{ fontSize: 12, color: "var(--text-muted)" }}>
-          Nom d'usage
+          Prénom / nom d'usage
           <input
             autoFocus
-            value={n}
-            onChange={(e) => setN(e.target.value)}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
             maxLength={60}
             style={inputStyle}
           />
@@ -160,10 +160,10 @@ function ProfileEditModal({
         <label style={{ fontSize: 12, color: "var(--text-muted)" }}>
           Qualificatif (optionnel)
           <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
+            value={n}
+            onChange={(e) => setN(e.target.value)}
             maxLength={60}
-            placeholder="laisser vide pour n'afficher que le nom"
+            placeholder="laisser vide pour n'afficher que le prénom"
             style={inputStyle}
           />
         </label>

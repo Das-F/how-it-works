@@ -22,6 +22,8 @@ export type Database = {
           email: string
           id: string
           invited_by: string | null
+          prefill_nom: string | null
+          prefill_qualificatif: string | null
         }
         Insert: {
           accepted_at?: string | null
@@ -30,6 +32,8 @@ export type Database = {
           email: string
           id?: string
           invited_by?: string | null
+          prefill_nom?: string | null
+          prefill_qualificatif?: string | null
         }
         Update: {
           accepted_at?: string | null
@@ -38,6 +42,8 @@ export type Database = {
           email?: string
           id?: string
           invited_by?: string | null
+          prefill_nom?: string | null
+          prefill_qualificatif?: string | null
         }
         Relationships: [
           {

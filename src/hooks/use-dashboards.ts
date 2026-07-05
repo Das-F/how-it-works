@@ -117,7 +117,7 @@ export function useDashboardInvitations(dashboardId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("dashboard_invitations")
-        .select("id, email, created_at, accepted_at")
+        .select("id, email, created_at, accepted_at, prefill_nom, prefill_qualificatif")
         .eq("dashboard_id", dashboardId!)
         .is("accepted_at", null)
         .order("created_at", { ascending: false });
@@ -130,16 +130,25 @@ export function useDashboardInvitations(dashboardId: string | undefined) {
 export function useInviteToDashboard(userId: string | undefined) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (args: { dashboardId: string; email: string }) => {
+    mutationFn: async (args: {
+      dashboardId: string;
+      email: string;
+      prefillNom?: string;
+      prefillQualificatif?: string;
+    }) => {
       if (!userId) throw new Error("Non connecté");
       const email = args.email.trim().toLowerCase();
       if (!email || !email.includes("@")) throw new Error("Email invalide");
 
-      // Try to find an existing profile/user via profiles join (admin path).
-      // For simplicity, we attempt the invitation first; the trigger will pick it up at signup.
       const { error } = await supabase
         .from("dashboard_invitations")
-        .insert({ dashboard_id: args.dashboardId, email, invited_by: userId });
+        .insert({
+          dashboard_id: args.dashboardId,
+          email,
+          invited_by: userId,
+          prefill_nom: args.prefillNom ?? null,
+          prefill_qualificatif: args.prefillQualificatif ?? null,
+        });
       if (error) {
         if (error.code === "23505") {
           throw new Error("Cet email est déjà invité sur ce dashboard");

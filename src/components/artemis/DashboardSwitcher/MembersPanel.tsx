@@ -22,6 +22,8 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
   const removeMember = useRemoveMember(dashboardId);
   const renameMember = useRenameMember(dashboardId);
   const [email, setEmail] = useState("");
+  const [prefillNom, setPrefillNom] = useState("");
+  const [prefillQualif, setPrefillQualif] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
 
@@ -29,8 +31,15 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
     e.preventDefault();
     if (!email.trim() || invite.isPending) return;
     try {
-      await invite.mutateAsync({ dashboardId, email });
+      await invite.mutateAsync({
+        dashboardId,
+        email,
+        prefillNom: prefillNom.trim() || undefined,
+        prefillQualificatif: prefillQualif.trim() || undefined,
+      });
       setEmail("");
+      setPrefillNom("");
+      setPrefillQualif("");
     } catch {
       /* error shown below */
     }
@@ -60,7 +69,7 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
       <div className={styles.list}>
         {members.map((m) => {
           const isOwner = m.user_id === ownerId;
-          const baseLabel = m.nom || m.qualificatif || "Membre";
+          const baseLabel = m.qualificatif || m.nom || "Membre";
           const label = m.alias || baseLabel;
           const isEditing = editingId === m.user_id;
           const canRename = !isOwner && userId === ownerId;
@@ -129,15 +138,22 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
         {invitations.map((inv) => (
           <div key={inv.id} className={styles.row}>
             <div>
-              <div className={styles.rowName}>{inv.email}</div>
-              <div className={styles.rowEmail}>Invitation envoyée</div>
+              <div className={styles.rowName}>
+                {inv.prefill_qualificatif || inv.prefill_nom || inv.email}
+                {inv.prefill_qualificatif && inv.prefill_nom && (
+                  <span style={{ marginLeft: 8, fontSize: 11, color: "var(--text-muted)" }}>
+                    ({inv.prefill_nom})
+                  </span>
+                )}
+              </div>
+              <div className={styles.rowEmail}>{inv.email} — Invitation envoyée</div>
             </div>
             <span className={styles.pendingBadge}>En attente</span>
           </div>
         ))}
       </div>
 
-      <form className={styles.form} onSubmit={handleInvite}>
+      <form className={styles.form} onSubmit={handleInvite} style={{ flexDirection: "column", gap: 6 }}>
         <input
           type="email"
           className={styles.input}
@@ -145,6 +161,24 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+        <div style={{ display: "flex", gap: 6 }}>
+          <input
+            type="text"
+            className={styles.input}
+            placeholder="Prénom (optionnel)"
+            value={prefillQualif}
+            onChange={(e) => setPrefillQualif(e.target.value)}
+            maxLength={60}
+          />
+          <input
+            type="text"
+            className={styles.input}
+            placeholder="Qualificatif (optionnel)"
+            value={prefillNom}
+            onChange={(e) => setPrefillNom(e.target.value)}
+            maxLength={60}
+          />
+        </div>
         <button type="submit" className={styles.send} disabled={!email.trim() || invite.isPending}>
           {invite.isPending ? "…" : "Inviter"}
         </button>
