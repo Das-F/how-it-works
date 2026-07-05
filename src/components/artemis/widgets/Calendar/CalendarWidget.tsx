@@ -52,7 +52,9 @@ export function CalendarWidget({ title, dashboardId }: Props) {
   const memberLabel = (uid: string) => {
     const m = members.find((x) => x.user_id === uid);
     if (!m) return "Membre";
-    return m.alias || m.qualificatif || m.nom || "Membre";
+    if (m.alias) return m.alias;
+    if (m.qualificatif && m.nom) return `${m.qualificatif} ${m.nom}`;
+    return m.qualificatif || m.nom || "Membre";
   };
 
   const byDate = useMemo(() => {
