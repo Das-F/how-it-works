@@ -23,8 +23,8 @@ export function Header({ userId, qualificatif, nom, isAdmin, switcher }: Props) 
 
   const displayNom = nom?.trim() || "";
   const displayQualif = qualificatif?.trim() || "";
-  const primary = displayNom || displayQualif || "ami(e)";
-  const secondary = displayNom && displayQualif ? displayQualif : "";
+  const primary = displayQualif || displayNom || "ami(e)";
+  const secondary = displayQualif && displayNom ? displayNom : "";
 
   return (
     <header className={styles.header}>
