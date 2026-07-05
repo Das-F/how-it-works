@@ -99,10 +99,24 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
                   </form>
                 ) : (
                   <div className={styles.rowName}>
-                    {label}
-                    {isOwner && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--orange)" }}>OWNER</span>}
-                    {m.alias && !isOwner && (
-                      <span style={{ marginLeft: 8, fontSize: 11, color: "var(--text-muted)" }}>({baseLabel})</span>
+                    {m.alias ? (
+                      <>
+                        {m.alias}
+                        {!isOwner && (
+                          <span style={{ marginLeft: 8, fontSize: 11, color: "var(--text-muted)" }}>({baseLabel})</span>
+                        )}
+                      </>
+                    ) : m.qualificatif ? (
+                      <>
+                        <span style={{ color: "var(--orange)", fontWeight: 600 }}>{m.qualificatif}</span>
+                        {m.nom && <> <span>{m.nom}</span></>}
+                        {isOwner && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--orange)" }}>OWNER</span>}
+                      </>
+                    ) : (
+                      <>
+                        {m.nom || "Membre"}
+                        {isOwner && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--orange)" }}>OWNER</span>}
+                      </>
                     )}
                   </div>
                 )}
@@ -139,11 +153,13 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
           <div key={inv.id} className={styles.row}>
             <div>
               <div className={styles.rowName}>
-                {inv.prefill_qualificatif || inv.prefill_nom || inv.email}
-                {inv.prefill_qualificatif && inv.prefill_nom && (
-                  <span style={{ marginLeft: 8, fontSize: 11, color: "var(--text-muted)" }}>
-                    ({inv.prefill_nom})
-                  </span>
+                {inv.prefill_qualificatif ? (
+                  <>
+                    <span style={{ color: "var(--orange)", fontWeight: 600 }}>{inv.prefill_qualificatif}</span>
+                    {inv.prefill_nom && <> <span>{inv.prefill_nom}</span></>}
+                  </>
+                ) : (
+                  <span>{inv.prefill_nom || inv.email}</span>
                 )}
               </div>
               <div className={styles.rowEmail}>{inv.email} — Invitation envoyée</div>

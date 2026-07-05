@@ -23,8 +23,6 @@ export function Header({ userId, qualificatif, nom, isAdmin, switcher }: Props) 
 
   const displayNom = nom?.trim() || "";
   const displayQualif = qualificatif?.trim() || "";
-  const primary = displayQualif || displayNom || "ami(e)";
-  const secondary = displayQualif && displayNom ? displayNom : "";
 
   return (
     <header className={styles.header}>
@@ -39,8 +37,15 @@ export function Header({ userId, qualificatif, nom, isAdmin, switcher }: Props) 
 
       <div className={styles.greeting}>
         <div className={styles.greetingMain}>
-          Bonjour, <span className={styles.nom}>{primary}</span>
-          {secondary && <> <span className={styles.qualif}>{secondary}</span></>}
+          Bonjour,{" "}
+          {displayQualif ? (
+            <>
+              <span className={styles.qualif}>{displayQualif}</span>
+              {displayNom && <> <span className={styles.nom}>{displayNom}</span></>}
+            </>
+          ) : (
+            <span className={styles.nom}>{displayNom || "ami(e)"}</span>
+          )}
           {userId && (
             <button
               type="button"
