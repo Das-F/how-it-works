@@ -37,10 +37,18 @@ export function MessagesPanel({ userId, dashboardId }: Props) {
     }
   }, [messages]);
 
-  const nameFor = (id: string) => {
+  const nameNodeFor = (id: string): React.ReactNode => {
     const p = profiles?.find((x) => x.id === id);
     if (!p) return "…";
-    return p.qualificatif || p.nom || "Anonyme";
+    if (p.qualificatif) {
+      return (
+        <>
+          <span style={{ color: "var(--orange)" }}>{p.qualificatif}</span>
+          {p.nom && <> <span>{p.nom}</span></>}
+        </>
+      );
+    }
+    return p.nom || "Anonyme";
   };
 
   const handleSubmit = (e: FormEvent) => {
