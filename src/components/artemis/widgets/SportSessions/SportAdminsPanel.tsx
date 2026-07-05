@@ -36,7 +36,7 @@ export function SportAdminsPanel({ userId }: { userId: string }) {
         )}
         {adminProfiles.map((p) => (
           <div key={p.id} style={row}>
-            <div style={{ fontSize: 13 }}>{p.nom || p.qualificatif || "Membre"}</div>
+            <div style={{ fontSize: 13 }}>{p.qualificatif || p.nom || "Membre"}</div>
 
             <button onClick={() => remove.mutate(p.id)} style={removeBtn}>Retirer</button>
           </div>
