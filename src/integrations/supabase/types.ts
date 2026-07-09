@@ -178,6 +178,41 @@ export type Database = {
           },
         ]
       }
+      notepad_notes: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          id: string
+          updated_at: string
+          widget_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          id?: string
+          updated_at?: string
+          widget_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          updated_at?: string
+          widget_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notepad_notes_widget_id_fkey"
+            columns: ["widget_id"]
+            isOneToOne: false
+            referencedRelation: "widgets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_its: {
         Row: {
           content: string

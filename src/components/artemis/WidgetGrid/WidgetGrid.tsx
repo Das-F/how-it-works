@@ -47,12 +47,14 @@ export function WidgetGrid({ dashboardId, userId, isOwner, isGlobalAdmin }: Prop
                   >×</button>
                 )}
                 <WidgetRenderer
+                  widgetId={widget.id}
                   type={widget.type}
                   title={widget.title}
                   userId={userId}
                   dashboardId={dashboardId}
                   isSportAdmin={isSportAdmin}
                   isGlobalAdmin={isGlobalAdmin}
+                  isOwner={isOwner}
                 />
 
               </div>

@@ -16,6 +16,12 @@ export const WIDGET_CATALOG = [
     name: "Calendrier",
     description: "Vue mensuelle simple pour repérer rapidement les jours.",
   },
+  {
+    type: "notepad",
+    icon: "📝",
+    name: "Bloc-notes",
+    description: "Un titre et une liste de notes pour rassembler les infos d'un sujet ou d'un événement.",
+  },
 ];
 
 interface Props {
