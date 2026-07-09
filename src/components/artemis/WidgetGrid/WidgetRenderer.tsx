@@ -1,16 +1,19 @@
 import { SportSessionsWidget } from "@/components/artemis/widgets/SportSessions/SportSessionsWidget";
 import { CalendarWidget } from "@/components/artemis/widgets/Calendar/CalendarWidget";
+import { NotepadWidget } from "@/components/artemis/widgets/Notepad/NotepadWidget";
 
 interface Props {
+  widgetId: string;
   type: string;
   title: string | null;
   userId: string;
   dashboardId: string | undefined;
   isSportAdmin: boolean;
   isGlobalAdmin: boolean;
+  isOwner: boolean;
 }
 
-export function WidgetRenderer({ type, title, userId, dashboardId, isSportAdmin, isGlobalAdmin }: Props) {
+export function WidgetRenderer({ widgetId, type, title, userId, dashboardId, isSportAdmin, isGlobalAdmin, isOwner }: Props) {
   switch (type) {
     case "sport_sessions":
       return (
@@ -23,6 +26,16 @@ export function WidgetRenderer({ type, title, userId, dashboardId, isSportAdmin,
       );
     case "calendar":
       return <CalendarWidget title={title} dashboardId={dashboardId} />;
+    case "notepad":
+      return (
+        <NotepadWidget
+          widgetId={widgetId}
+          title={title}
+          userId={userId}
+          dashboardId={dashboardId}
+          canEdit={isOwner || isGlobalAdmin}
+        />
+      );
     default:
       return (
         <div>
@@ -32,4 +45,5 @@ export function WidgetRenderer({ type, title, userId, dashboardId, isSportAdmin,
       );
   }
 }
+
 
