@@ -106,15 +106,15 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
                           <span style={{ marginLeft: 8, fontSize: 11, color: "var(--text-muted)" }}>({baseLabel})</span>
                         )}
                       </>
-                    ) : m.qualificatif ? (
+                    ) : m.nom ? (
                       <>
-                        <span style={{ color: "var(--orange)", fontWeight: 600 }}>{m.qualificatif}</span>
-                        {m.nom && <> <span>{m.nom}</span></>}
+                        <span style={{ color: "var(--orange)", fontWeight: 600 }}>{m.nom}</span>
+                        {m.qualificatif && <> <span>{m.qualificatif}</span></>}
                         {isOwner && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--orange)" }}>OWNER</span>}
                       </>
                     ) : (
                       <>
-                        {m.nom || "Membre"}
+                        {m.qualificatif || "Membre"}
                         {isOwner && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--orange)" }}>OWNER</span>}
                       </>
                     )}
@@ -153,13 +153,13 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
           <div key={inv.id} className={styles.row}>
             <div>
               <div className={styles.rowName}>
-                {inv.prefill_qualificatif ? (
+                {inv.prefill_nom ? (
                   <>
-                    <span style={{ color: "var(--orange)", fontWeight: 600 }}>{inv.prefill_qualificatif}</span>
-                    {inv.prefill_nom && <> <span>{inv.prefill_nom}</span></>}
+                    <span style={{ color: "var(--orange)", fontWeight: 600 }}>{inv.prefill_nom}</span>
+                    {inv.prefill_qualificatif && <> <span>{inv.prefill_qualificatif}</span></>}
                   </>
                 ) : (
-                  <span>{inv.prefill_nom || inv.email}</span>
+                  <span>{inv.prefill_qualificatif || inv.email}</span>
                 )}
               </div>
               <div className={styles.rowEmail}>{inv.email} — Invitation envoyée</div>

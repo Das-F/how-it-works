@@ -38,13 +38,13 @@ export function Header({ userId, qualificatif, nom, isAdmin, switcher }: Props) 
       <div className={styles.greeting}>
         <div className={styles.greetingMain}>
           Bonjour,{" "}
-          {displayQualif ? (
+          {displayNom ? (
             <>
-              <span className={styles.qualif}>{displayQualif}</span>
-              {displayNom && <> <span className={styles.nom}>{displayNom}</span></>}
+              <span className={styles.qualif}>{displayNom}</span>
+              {displayQualif && <> <span className={styles.nom}>{displayQualif}</span></>}
             </>
           ) : (
-            <span className={styles.nom}>{displayNom || "ami(e)"}</span>
+            <span className={styles.nom}>{displayQualif || "ami(e)"}</span>
           )}
           {userId && (
             <button
