@@ -58,13 +58,13 @@ export function SportAdminsPanel({ userId }: { userId: string }) {
           {others.map((p) => (
             <div key={p.id} style={row}>
               <div style={{ fontSize: 13 }}>
-                {p.qualificatif ? (
+                {p.nom ? (
                   <>
-                    <span style={{ color: "var(--orange)", fontWeight: 600 }}>{p.qualificatif}</span>
-                    {p.nom && <> <span>{p.nom}</span></>}
+                    <span style={{ color: "var(--orange)", fontWeight: 600 }}>{p.nom}</span>
+                    {p.qualificatif && <> <span>{p.qualificatif}</span></>}
                   </>
                 ) : (
-                  p.nom || "Membre"
+                  p.qualificatif || "Membre"
                 )}
               </div>
               <button onClick={() => add.mutate(p.id)} style={addBtn}>Promouvoir</button>
