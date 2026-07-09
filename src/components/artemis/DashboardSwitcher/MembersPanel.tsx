@@ -106,15 +106,15 @@ export function MembersPanel({ dashboardId, ownerId, userId }: Props) {
                           <span style={{ marginLeft: 8, fontSize: 11, color: "var(--text-muted)" }}>({baseLabel})</span>
                         )}
                       </>
-                    ) : m.qualificatif ? (
+                    ) : m.nom ? (
                       <>
-                        <span style={{ color: "var(--orange)", fontWeight: 600 }}>{m.qualificatif}</span>
-                        {m.nom && <> <span>{m.nom}</span></>}
+                        <span style={{ color: "var(--orange)", fontWeight: 600 }}>{m.nom}</span>
+                        {m.qualificatif && <> <span>{m.qualificatif}</span></>}
                         {isOwner && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--orange)" }}>OWNER</span>}
                       </>
                     ) : (
                       <>
-                        {m.nom || "Membre"}
+                        {m.qualificatif || "Membre"}
                         {isOwner && <span style={{ marginLeft: 8, fontSize: 10, color: "var(--orange)" }}>OWNER</span>}
                       </>
                     )}
