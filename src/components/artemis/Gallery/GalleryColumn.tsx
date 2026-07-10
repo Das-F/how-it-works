@@ -1,18 +1,33 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDeleteGallery, useGallery, useUploadGallery } from "@/hooks/use-gallery";
+import { useUpdateDashboardDriveUrl } from "@/hooks/use-dashboards";
 import styles from "./Gallery.module.css";
 
 interface Props {
   userId: string | undefined;
   dashboardId: string | undefined;
+  driveUrl: string | null;
+  canEditDrive: boolean;
 }
 
-export function GalleryColumn({ userId, dashboardId }: Props) {
+function normalizeUrl(raw: string): string {
+  const u = raw.trim();
+  if (!u) return "";
+  if (!/^https?:\/\//i.test(u)) return `https://${u}`;
+  return u;
+}
+
+export function GalleryColumn({ userId, dashboardId, driveUrl, canEditDrive }: Props) {
   const { data: items = [], isLoading } = useGallery(userId, dashboardId);
   const uploadMut = useUploadGallery();
   const deleteMut = useDeleteGallery();
+  const updateDrive = useUpdateDashboardDriveUrl();
   const inputRef = useRef<HTMLInputElement>(null);
   const [landscapeIds, setLandscapeIds] = useState<Record<string, boolean>>({});
+  const [editingDrive, setEditingDrive] = useState(false);
+  const [driveDraft, setDriveDraft] = useState(driveUrl ?? "");
+
+  useEffect(() => setDriveDraft(driveUrl ?? ""), [driveUrl]);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,6 +53,15 @@ export function GalleryColumn({ userId, dashboardId }: Props) {
     const isLandscape = img.naturalWidth > img.naturalHeight * 1.05;
     setLandscapeIds((prev) =>
       prev[id] === isLandscape ? prev : { ...prev, [id]: isLandscape }
+    );
+  };
+
+  const saveDrive = () => {
+    if (!dashboardId) return;
+    const v = normalizeUrl(driveDraft);
+    updateDrive.mutate(
+      { dashboardId, url: v === "" ? null : v },
+      { onSuccess: () => setEditingDrive(false) },
     );
   };
 
@@ -97,6 +121,71 @@ export function GalleryColumn({ userId, dashboardId }: Props) {
           })}
         </div>
       )}
+
+      <div className={styles.driveBlock}>
+        {driveUrl && !editingDrive ? (
+          <div className={styles.driveRow}>
+            <a
+              href={driveUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={styles.driveLink}
+            >
+              <span>🗂️</span>
+              <span>Ouvrir le Google Drive</span>
+              <span className={styles.driveArrow}>↗</span>
+            </a>
+            {canEditDrive && (
+              <button
+                type="button"
+                className={styles.driveEditBtn}
+                onClick={() => setEditingDrive(true)}
+                aria-label="Modifier le lien Drive"
+                title="Modifier"
+              >
+                ✎
+              </button>
+            )}
+          </div>
+        ) : canEditDrive ? (
+          <div className={styles.driveEdit}>
+            <input
+              className={styles.driveInput}
+              placeholder="URL du Google Drive…"
+              value={driveDraft}
+              onChange={(e) => setDriveDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") saveDrive();
+                if (e.key === "Escape") {
+                  setDriveDraft(driveUrl ?? "");
+                  setEditingDrive(false);
+                }
+              }}
+              autoFocus={editingDrive}
+            />
+            <button
+              type="button"
+              className={styles.driveSaveBtn}
+              disabled={updateDrive.isPending}
+              onClick={saveDrive}
+            >
+              {updateDrive.isPending ? "…" : "OK"}
+            </button>
+            {editingDrive && (
+              <button
+                type="button"
+                className={styles.driveCancelBtn}
+                onClick={() => {
+                  setDriveDraft(driveUrl ?? "");
+                  setEditingDrive(false);
+                }}
+              >
+                Annuler
+              </button>
+            )}
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }
