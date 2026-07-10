@@ -51,14 +51,13 @@ export function GoogleSheetWidget({ widgetId, title, config, dashboardId, canEdi
 
   const save = useMutation({
     mutationFn: async (patch: { url?: string; title?: string }) => {
-      const update: Record<string, unknown> = {};
+      const update: { config?: Json; title?: string } = {};
       if (patch.url !== undefined) {
-        const nextConfig =
+        const base =
           config && typeof config === "object" && !Array.isArray(config)
-            ? { ...(config as Record<string, unknown>) }
+            ? (config as Record<string, Json>)
             : {};
-        nextConfig.url = patch.url;
-        update.config = nextConfig;
+        update.config = { ...base, url: patch.url } as Json;
       }
       if (patch.title !== undefined) update.title = patch.title;
       const { error } = await supabase.from("widgets").update(update).eq("id", widgetId);
@@ -66,6 +65,7 @@ export function GoogleSheetWidget({ widgetId, title, config, dashboardId, canEdi
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["widgets", dashboardId] }),
   });
+
 
   const embed = url ? toEmbedUrl(url) : null;
 
