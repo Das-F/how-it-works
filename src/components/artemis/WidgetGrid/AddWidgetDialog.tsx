@@ -22,6 +22,13 @@ export const WIDGET_CATALOG = [
     name: "Bloc-notes",
     description: "Un titre et une liste de notes pour rassembler les infos d'un sujet ou d'un événement.",
   },
+  {
+    type: "google_sheet",
+    icon: "📊",
+    name: "Google Sheet",
+    description: "Intègre un Google Sheet (aperçu + lien) partagé avec les membres du dashboard.",
+  },
+
 ];
 
 interface Props {
