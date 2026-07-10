@@ -87,6 +87,7 @@ export type Database = {
       dashboards: {
         Row: {
           created_at: string
+          google_drive_url: string | null
           id: string
           is_personal: boolean
           name: string
@@ -95,6 +96,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          google_drive_url?: string | null
           id?: string
           is_personal?: boolean
           name: string
@@ -103,6 +105,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          google_drive_url?: string | null
           id?: string
           is_personal?: boolean
           name?: string

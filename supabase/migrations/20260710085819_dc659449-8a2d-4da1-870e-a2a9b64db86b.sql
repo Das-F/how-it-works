@@ -1,0 +1,1 @@
+ALTER TABLE public.dashboards ADD COLUMN IF NOT EXISTS google_drive_url text;

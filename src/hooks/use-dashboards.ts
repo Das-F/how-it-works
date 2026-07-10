@@ -7,6 +7,7 @@ export interface Dashboard {
   owner_id: string;
   is_personal: boolean;
   created_at: string;
+  google_drive_url: string | null;
 }
 
 export function useDashboards(userId: string | undefined) {
@@ -16,14 +17,29 @@ export function useDashboards(userId: string | undefined) {
     queryFn: async (): Promise<Dashboard[]> => {
       const { data, error } = await supabase
         .from("dashboards")
-        .select("id, name, owner_id, is_personal, created_at")
+        .select("id, name, owner_id, is_personal, created_at, google_drive_url")
         .order("is_personal", { ascending: false })
         .order("created_at", { ascending: true });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as Dashboard[];
     },
   });
 }
+
+export function useUpdateDashboardDriveUrl() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (args: { dashboardId: string; url: string | null }) => {
+      const { error } = await supabase
+        .from("dashboards")
+        .update({ google_drive_url: args.url })
+        .eq("id", args.dashboardId);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["dashboards"] }),
+  });
+}
+
 
 export function useCreateDashboard(userId: string | undefined) {
   const qc = useQueryClient();
