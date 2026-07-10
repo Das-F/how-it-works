@@ -98,3 +98,81 @@
   font-size: 13px;
   font-style: italic;
 }
+
+.driveBlock {
+  margin-top: 4px;
+}
+
+.driveRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.driveLink {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--violet-border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  color: var(--text);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--transition);
+}
+.driveLink:hover {
+  border-color: var(--orange);
+  color: var(--orange);
+}
+.driveArrow {
+  margin-left: auto;
+  color: var(--text-muted);
+}
+.driveLink:hover .driveArrow { color: var(--orange); }
+
+.driveEditBtn,
+.driveCancelBtn {
+  background: transparent;
+  border: 1px solid var(--violet-border);
+  color: var(--text-muted);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 12px;
+}
+.driveEditBtn:hover { color: var(--text); border-color: var(--orange); }
+
+.driveEdit {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.driveInput {
+  flex: 1;
+  padding: 8px 10px;
+  background: var(--bg-elev);
+  border: 1px solid var(--violet-border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  outline: none;
+}
+.driveInput:focus { border-color: var(--orange); }
+
+.driveSaveBtn {
+  padding: 8px 12px;
+  background: var(--orange);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.driveSaveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
