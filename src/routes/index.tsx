@@ -116,7 +116,14 @@ function Dashboard() {
           <MessagesPanel userId={user.id} dashboardId={dashboardId} />
         </div>
       }
-      right={<GalleryColumn userId={user.id} dashboardId={dashboardId} />}
+      right={
+        <GalleryColumn
+          userId={user.id}
+          dashboardId={dashboardId}
+          driveUrl={activeDashboard?.google_drive_url ?? null}
+          canEditDrive={isOwner}
+        />
+      }
     />
   );
 }
