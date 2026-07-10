@@ -1,11 +1,14 @@
+import type { Json } from "@/integrations/supabase/types";
 import { SportSessionsWidget } from "@/components/artemis/widgets/SportSessions/SportSessionsWidget";
 import { CalendarWidget } from "@/components/artemis/widgets/Calendar/CalendarWidget";
 import { NotepadWidget } from "@/components/artemis/widgets/Notepad/NotepadWidget";
+import { GoogleSheetWidget } from "@/components/artemis/widgets/GoogleSheet/GoogleSheetWidget";
 
 interface Props {
   widgetId: string;
   type: string;
   title: string | null;
+  config: Json | null;
   userId: string;
   dashboardId: string | undefined;
   isSportAdmin: boolean;
@@ -13,7 +16,17 @@ interface Props {
   isOwner: boolean;
 }
 
-export function WidgetRenderer({ widgetId, type, title, userId, dashboardId, isSportAdmin, isGlobalAdmin, isOwner }: Props) {
+export function WidgetRenderer({
+  widgetId,
+  type,
+  title,
+  config,
+  userId,
+  dashboardId,
+  isSportAdmin,
+  isGlobalAdmin,
+  isOwner,
+}: Props) {
   switch (type) {
     case "sport_sessions":
       return (
@@ -36,6 +49,16 @@ export function WidgetRenderer({ widgetId, type, title, userId, dashboardId, isS
           canEdit={isOwner || isGlobalAdmin}
         />
       );
+    case "google_sheet":
+      return (
+        <GoogleSheetWidget
+          widgetId={widgetId}
+          title={title}
+          config={config}
+          dashboardId={dashboardId}
+          canEdit={isOwner || isGlobalAdmin}
+        />
+      );
     default:
       return (
         <div>
@@ -45,5 +68,3 @@ export function WidgetRenderer({ widgetId, type, title, userId, dashboardId, isS
       );
   }
 }
-
-
