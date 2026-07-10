@@ -1,0 +1,102 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 300px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.icon { font-size: 18px; }
+.title {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 15px;
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+.title:hover, .title:focus { background: var(--bg); }
+.title::placeholder { color: var(--text-dim); font-style: italic; }
+
+.iconBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.iconBtn:hover { background: var(--violet-soft); color: var(--text); }
+
+.editRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.input {
+  flex: 1;
+  padding: 8px 10px;
+  background: var(--bg);
+  border: 1px solid var(--violet-border);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+.input:focus { border-color: var(--orange); }
+
+.saveBtn {
+  padding: 8px 14px;
+  background: linear-gradient(135deg, var(--violet), var(--orange));
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.saveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.cancelBtn {
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px solid var(--violet-border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.frame {
+  flex: 1;
+  min-height: 320px;
+  width: 100%;
+  border: 1px solid var(--violet-border);
+  border-radius: 8px;
+  background: white;
+}
+
+.empty {
+  padding: 24px 12px;
+  border: 1px dashed var(--violet-border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  text-align: center;
+  font-size: 13px;
+}
+
+.link {
+  color: var(--orange);
+  font-size: 12px;
+  text-decoration: none;
+  align-self: flex-end;
+}
+.link:hover { text-decoration: underline; }
