@@ -55,7 +55,10 @@ export function PostItWidget({ isOwner, userId, dashboardId }: Props) {
         </div>
       ) : (
         <>
-          <div className={styles.content}>
+          <div
+            className={styles.content}
+            style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}
+          >
             {isLoading
               ? "Chargement..."
               : postIt?.content
