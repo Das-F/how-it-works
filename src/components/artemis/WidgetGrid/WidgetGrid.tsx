@@ -6,7 +6,7 @@ import { AddWidgetDialog } from "./AddWidgetDialog";
 import { WidgetRenderer } from "./WidgetRenderer";
 import styles from "./WidgetGrid.module.css";
 
-const SLOT_COUNT = 4;
+const SLOT_COUNT = 6;
 
 interface Props {
   dashboardId: string | undefined;
