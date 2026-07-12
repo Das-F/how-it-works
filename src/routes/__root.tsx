@@ -86,6 +86,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Artemis Community" },
+      { name: "twitter:description", content: "Dashboard personnel modulable de la communauté Artemis." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/309985b0-2b0b-4424-9b20-bc438935b13b/id-preview-a18f0fdf--0fbdbd8c-43d7-41fd-a258-c1bab434513c.lovable.app-1783868102485.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/309985b0-2b0b-4424-9b20-bc438935b13b/id-preview-a18f0fdf--0fbdbd8c-43d7-41fd-a258-c1bab434513c.lovable.app-1783868102485.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
